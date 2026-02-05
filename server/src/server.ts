@@ -1,0 +1,31 @@
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import { config } from './config/env.config';
+import productRoutes from './routes/product.routes';
+
+const app = express();
+
+// Middleware
+app.use(cors({ origin: config.CORS_ORIGIN }));
+app.use(express.json());
+
+// Routes
+app.use('/api/products', productRoutes);
+
+// Database Connection & Server Start
+const startServer = async () => {
+  try {
+    await mongoose.connect(config.MONGODB_URI);
+    console.log(`Connected to MongoDB (${config.NODE_ENV})`);
+
+    app.listen(config.PORT, () => {
+      console.log(`Server running on port ${config.PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to connect to database:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
