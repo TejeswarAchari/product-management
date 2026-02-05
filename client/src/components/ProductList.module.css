@@ -1,6 +1,6 @@
 /* Main Container */
 .container {
-  padding: 40px 0;
+  padding: 10px 0 40px;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -10,7 +10,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
+  gap: 1.8rem;
   margin-bottom: 2rem;
   padding: 0 1rem;
 }
@@ -18,7 +18,7 @@
 /* End of List Message */
 .endMessage {
   text-align: center;
-  color: #a0aec0;
+  color: var(--muted);
   font-style: italic;
   font-size: 0.95rem;
   padding: 2rem;
@@ -26,16 +26,34 @@
   display: block;
 }
 
+.loadMoreBtn {
+  margin: 0 auto;
+  display: block;
+  padding: 12px 26px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-deep));
+  color: #111111;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+.loadMoreBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(122, 76, 255, 0.3);
+}
+
 /* -------------------------- */
 /* SHIMMER / SKELETON STYLES  */
 /* -------------------------- */
 
 .skeletonCard {
-  background: #ffffff;
+  background: #111111;
   border-radius: 20px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-  border: 1px solid rgba(0, 0, 0, 0.03);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   height: 250px; /* Approximate height of real card */
   display: flex;
   flex-direction: column;
@@ -50,8 +68,8 @@
 
 .shimmerLine {
   height: 20px;
-  background: #f6f7f8;
-  background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background: #1b1b1b;
+  background-image: linear-gradient(to right, #1b1b1b 0%, #2a2a2a 20%, #1b1b1b 40%, #1b1b1b 100%);
   background-repeat: no-repeat;
   background-size: 1000px 100%; 
   display: block;

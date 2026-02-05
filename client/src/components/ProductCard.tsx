@@ -10,6 +10,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // Deterministic date formatting
   const formattedDate = new Date(product.createdAt).toISOString().split('T')[0];
   const isAvailable = product.stock > 0;
+  const formattedPrice = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(product.price);
 
   return (
     <div className={styles.card}>
@@ -26,7 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <p className={styles.description}>{product.description}</p>
       
       <div className={styles.footer}>
-        <span className={styles.price}>${product.price}</span>
+        <span className={styles.price}>{formattedPrice}</span>
         
         <span className={`${styles.stock} ${isAvailable ? styles.inStock : styles.outStock}`}>
           <span className={styles.dot}></span>

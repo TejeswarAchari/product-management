@@ -1,10 +1,10 @@
 /* Card Container */
 .card {
-  background: #ffffff;
-  border-radius: 20px; /* Modern large radius */
+  background: #111111;
+  border-radius: 22px; /* Modern large radius */
   padding: 1.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04); /* Very soft shadow */
-  border: 1px solid rgba(0, 0, 0, 0.03); /* Subtle border */
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: flex;
   flex-direction: column;
@@ -16,7 +16,7 @@
 /* Hover Effect - "Lift" */
 .card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 26px 44px rgba(0, 0, 0, 0.55);
 }
 
 /* Header Section */
@@ -31,7 +31,7 @@
   margin: 0;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--foreground);
   line-height: 1.4;
   /* Limit to 2 lines with ellipsis */
   display: -webkit-box;
@@ -42,8 +42,8 @@
 
 /* Category Badge - Pill Shape */
 .badge {
-  background: #e0f2f1; /* Soft Teal */
-  color: #00695c;
+  background: rgba(244, 197, 66, 0.2);
+  color: var(--accent-yellow);
   padding: 6px 12px;
   border-radius: 50px;
   font-size: 0.75rem;
@@ -56,14 +56,14 @@
 }
 
 /* Different Colors for Categories (Optional logic can be added later, distinct look for now) */
-.badge[data-category="ELECTRONICS"] { background: #e3f2fd; color: #1565c0; }
-.badge[data-category="CLOTHING"] { background: #fce4ec; color: #c2185b; }
-.badge[data-category="BOOKS"] { background: #fff3e0; color: #ef6c00; }
-.badge[data-category="FOOD"] { background: #f1f8e9; color: #558b2f; }
+.badge[data-category="ELECTRONICS"] { background: rgba(244, 197, 66, 0.2); color: #f4c542; }
+.badge[data-category="CLOTHING"] { background: rgba(244, 197, 66, 0.2); color: #f4c542; }
+.badge[data-category="BOOKS"] { background: rgba(244, 197, 66, 0.2); color: #f4c542; }
+.badge[data-category="FOOD"] { background: rgba(244, 197, 66, 0.2); color: #f4c542; }
 
 /* Description Text */
 .description {
-  color: #718096;
+  color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.6;
   margin-bottom: auto; /* Pushes footer down */
@@ -77,7 +77,7 @@
 /* Meta Data (Date) */
 .date {
   font-size: 0.8rem;
-  color: #a0aec0;
+  color: var(--muted);
   margin-bottom: 1rem;
   display: block;
 }
@@ -86,7 +86,7 @@
 .footer {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 2px solid #f7fafc;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -95,7 +95,7 @@
 .price {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #2d3748;
+  color: var(--foreground);
 }
 
 /* Stock Status */
@@ -108,11 +108,11 @@
 }
 
 .inStock {
-  color: #38a169;
+  color: #f4c542;
 }
 
 .outStock {
-  color: #e53e3e;
+  color: #ff7b7b;
 }
 
 /* The little dot indicator */
@@ -123,5 +123,5 @@
   display: inline-block;
 }
 
-.inStock .dot { background-color: #38a169; }
-.outStock .dot { background-color: #e53e3e; }
+.inStock .dot { background-color: #f4c542; }
+.outStock .dot { background-color: #ff7b7b; }

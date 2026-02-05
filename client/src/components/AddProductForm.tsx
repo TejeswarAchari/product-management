@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { ProductCategory } from '../constants/app.constants';
+import { createProduct } from '../services/product.service';
+import { IProductCreatePayload } from '../types/product.types';
 import styles from './AddProductForm.module.css';
 
 interface AddProductFormProps {
@@ -11,34 +12,52 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: 0,
-    stock: 0,
+    price: '',
+    stock: '',
     category: ProductCategory.ELECTRONICS
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+    setIsError(false);
 
     try {
-      const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/products';
-      await axios.post(url, formData);
+      const payload: IProductCreatePayload = {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        price: Number(formData.price),
+        stock: Number(formData.stock),
+        category: formData.category
+      };
+
+      await createProduct(payload);
       setMessage('Product added successfully!');
       setFormData({
-        name: '', description: '', price: 0, stock: 0, category: ProductCategory.ELECTRONICS
+        name: '',
+        description: '',
+        price: '',
+        stock: '',
+        category: ProductCategory.ELECTRONICS
       });
       onProductAdded();
       
       // Clear success message after 3 seconds
-      setTimeout(() => setMessage(''), 3000);
+      setTimeout(() => {
+        setMessage('');
+        setIsError(false);
+      }, 3000);
     } catch (error) {
+      setIsError(true);
       setMessage('Error adding product. Please try again.');
     } finally {
       setLoading(false);
@@ -88,6 +107,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
             onChange={handleChange} 
             required 
             min="0" 
+            step="0.01"
             className={styles.input} 
           />
         </div>
@@ -125,10 +145,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
       </button>
 
       {message && (
-        <p className={styles.message} style={{ 
-          background: message.includes('Error') ? '#ffebee' : '#e8f5e9',
-          color: message.includes('Error') ? '#c62828' : '#2e7d32' 
-        }}>
+        <p className={`${styles.message} ${isError ? styles.messageError : styles.messageSuccess}`}>
           {message}
         </p>
       )}

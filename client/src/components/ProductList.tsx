@@ -69,8 +69,14 @@ const ProductList: React.FC<ProductListProps> = ({ products, hasMore, loading, l
       {/* End Message */}
       {!hasMore && !loading && products.length > 0 && (
         <div className={styles.endMessage}>
-          ✨ You have reached the end of the list
+          You have reached the end of the list
         </div>
+      )}
+
+      {hasMore && !loading && products.length > 0 && (
+        <button className={styles.loadMoreBtn} onClick={loadMore}>
+          Load More
+        </button>
       )}
       
       {/* Empty State */}

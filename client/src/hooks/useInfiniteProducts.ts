@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
-import { IProduct, IPaginatedResponse } from '../types/product.types';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { PAGINATION_CONSTANTS } from '../constants/app.constants';
+import { IProduct, IPaginatedResponse, IProductStats } from '../types/product.types';
 import { fetchProducts } from '../services/product.service';
 
 interface UseInfiniteProductsReturn {
@@ -7,33 +8,84 @@ interface UseInfiniteProductsReturn {
   loading: boolean;
   error: string | null;
   hasMore: boolean;
+  stats: IProductStats | null;
   loadMore: () => void;
-  reset: () => void;
-  setInitialData: (data: IPaginatedResponse) => void;
+  refresh: () => void;
 }
 
 export const useInfiniteProducts = (
   initialCategory?: string, 
-  initialSearch?: string
+  initialSearch?: string,
+  initialData?: IPaginatedResponse
 ): UseInfiniteProductsReturn => {
-  const [products, setProducts] = useState<IProduct[]>([]);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [products, setProducts] = useState<IProduct[]>(() => initialData?.data ?? []);
+  const [nextCursor, setNextCursor] = useState<string | null>(
+    () => initialData?.pagination.nextCursor ?? null
+  );
+  const [hasMore, setHasMore] = useState<boolean>(
+    () => initialData?.pagination.hasMore ?? false
+  );
+  const [stats, setStats] = useState<IProductStats | null>(
+    () => initialData?.stats ?? null
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  const queryKey = useMemo(
+    () => `${initialCategory || ''}::${initialSearch || ''}`,
+    [initialCategory, initialSearch]
+  );
+  const hasInitialized = useRef(false);
+
+  const fetchFirstPage = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setProducts([]);
+    setNextCursor(null);
+    setHasMore(false);
+    try {
+      const response = await fetchProducts(
+        null,
+        PAGINATION_CONSTANTS.DEFAULT_LIMIT,
+        initialCategory,
+        initialSearch
+      );
+
+      if (response && response.pagination) {
+        setProducts(response.data || []);
+        setNextCursor(response.pagination.nextCursor ?? null);
+        setHasMore(response.pagination.hasMore ?? false);
+        setStats(response.stats ?? null);
+      }
+    } catch (err) {
+      setError('Failed to load products');
+      setProducts([]);
+      setNextCursor(null);
+      setHasMore(false);
+      setStats(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [initialCategory, initialSearch]);
 
   const loadMore = useCallback(async () => {
     if (loading || !hasMore || !nextCursor) return;
 
     setLoading(true);
     try {
-      const response = await fetchProducts(nextCursor, 10, initialCategory, initialSearch);
+      const response = await fetchProducts(
+        nextCursor,
+        PAGINATION_CONSTANTS.DEFAULT_LIMIT,
+        initialCategory,
+        initialSearch
+      );
       
       // FIX: Ensure response structure is valid before updating
       if (response && response.data) {
         setProducts(prev => [...prev, ...response.data]);
         setNextCursor(response.pagination?.nextCursor ?? null);
         setHasMore(response.pagination?.hasMore ?? false);
+        setStats(response.stats ?? null);
       }
     } catch (err) {
       setError('Failed to load more products');
@@ -42,21 +94,17 @@ export const useInfiniteProducts = (
     }
   }, [nextCursor, hasMore, loading, initialCategory, initialSearch]);
 
-  const reset = useCallback(() => {
-    setProducts([]);
-    setNextCursor(null);
-    setHasMore(true);
-    setError(null);
-  }, []);
+  const refresh = useCallback(() => {
+    void fetchFirstPage();
+  }, [fetchFirstPage]);
 
-  // FIX: Add safety check for initial data structure
-  const setInitialData = useCallback((data: IPaginatedResponse) => {
-    if (!data || !data.pagination) return; // Stop if data is malformed
+  useEffect(() => {
+    if (!hasInitialized.current) {
+      hasInitialized.current = true;
+      return;
+    }
+    void fetchFirstPage();
+  }, [queryKey, fetchFirstPage]);
 
-    setProducts(data.data || []);
-    setNextCursor(data.pagination.nextCursor);
-    setHasMore(data.pagination.hasMore);
-  }, []);
-
-  return { products, loading, error, hasMore, loadMore, reset, setInitialData };
+  return { products, loading, error, hasMore, stats, loadMore, refresh };
 };

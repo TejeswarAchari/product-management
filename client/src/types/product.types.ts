@@ -16,4 +16,20 @@ export interface IPaginatedResponse {
     nextCursor: string | null;
     hasMore: boolean;
   };
+  stats?: IProductStats;
 }
+
+export interface IProductStats {
+  total: number;
+  inStock: number;
+  outOfStock: number;
+}
+
+export interface ICursorPaginationRequest {
+  cursor?: string | null;
+  limit?: number;
+  category?: string;
+  q?: string;
+}
+
+export type IProductCreatePayload = Omit<IProduct, '_id' | 'createdAt'>;

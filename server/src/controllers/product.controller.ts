@@ -37,7 +37,11 @@ export class ProductController {
         res.status(HttpStatus.BAD_REQUEST).json({ message: 'Query parameter q is required' });
         return;
       }
-      const results = await ProductService.searchProducts(query);
+      const cursor = req.query.cursor as string | undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const category = req.query.category as string | undefined;
+
+      const results = await ProductService.searchProducts(query, cursor, limit, category);
       res.status(HttpStatus.OK).json(results);
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Search failed', error });

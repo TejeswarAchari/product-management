@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import { ProductController } from '../controllers/product.controller';
-import { API_ENDPOINTS } from '../constants/app.constants';
-
 const router = Router();
 
 // Define routes using constants
