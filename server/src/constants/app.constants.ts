@@ -26,5 +26,6 @@ export const PAGINATION_CONSTANTS = {
 
 export const API_ENDPOINTS = {
   PRODUCTS: '/api/products',
+  PRODUCTS_BY_ID: '/api/products/:id',
   PRODUCTS_SEARCH: '/api/products/search'
 } as const;
