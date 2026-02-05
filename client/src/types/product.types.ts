@@ -10,8 +10,8 @@ export interface IProduct {
   createdAt: string;
 }
 
-export interface IPaginatedResponse {
-  data: IProduct[];
+export interface IPaginatedResponse<T = IProduct> {
+  data: T[];
   pagination: {
     nextCursor: string | null;
     hasMore: boolean;

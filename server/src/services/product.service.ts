@@ -1,17 +1,35 @@
+import mongoose from 'mongoose';
 import ProductModel, { IProductDocument } from '../models/Product.model';
 import { IProduct } from '../types/product.types';
 import { IPaginatedResponse, IPaginationStats } from '../types/pagination.types';
-import { PAGINATION_CONSTANTS, SortOrder } from '../constants/app.constants';
+import { HttpStatus, PAGINATION_CONSTANTS, ProductCategory, SortOrder } from '../constants/app.constants';
+import { AppError } from '../middleware/error.middleware';
+
+type ProductQuery = Record<string, unknown>;
 
 export class ProductService {
-  private static async getStockStats(): Promise<IPaginationStats> {
+  private static async getStockStats(
+    baseQuery: ProductQuery
+  ): Promise<IPaginationStats> {
     const [total, inStock, outOfStock] = await Promise.all([
-      ProductModel.countDocuments(),
-      ProductModel.countDocuments({ stock: { $gt: 0 } }),
-      ProductModel.countDocuments({ stock: { $lte: 0 } })
+      ProductModel.countDocuments(baseQuery),
+      ProductModel.countDocuments({ ...baseQuery, stock: { $gt: 0 } }),
+      ProductModel.countDocuments({ ...baseQuery, stock: { $lte: 0 } })
     ]);
 
     return { total, inStock, outOfStock };
+  }
+
+  private static ensureValidCursor(cursor?: string): mongoose.Types.ObjectId | undefined {
+    if (!cursor) return undefined;
+    if (!mongoose.isValidObjectId(cursor)) {
+      throw new AppError(HttpStatus.BAD_REQUEST, 'Invalid cursor');
+    }
+    return new mongoose.Types.ObjectId(cursor);
+  }
+
+  private static escapeRegex(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
   
   static async createProduct(data: IProduct): Promise<IProductDocument> {
@@ -22,23 +40,16 @@ export class ProductService {
   static async getProducts(
     cursor: string | undefined,
     limit: number = PAGINATION_CONSTANTS.DEFAULT_LIMIT,
-    category?: string
+    category?: ProductCategory
   ): Promise<IPaginatedResponse<IProductDocument>> {
-    
     const safeLimit = Math.min(limit, PAGINATION_CONSTANTS.MAX_LIMIT);
-    
 
-    const query: { _id?: { $gt: string }; category?: string } = {};
-    
-    if (cursor) {
-      query._id = { $gt: cursor };
-    }
+    const cursorId = ProductService.ensureValidCursor(cursor);
+    const query: ProductQuery = {
+      ...(cursorId ? { _id: { $gt: cursorId } } : {}),
+      ...(category ? { category } : {})
+    };
 
-    if (category) {
-      query.category = category;
-    }
-
-    // Pass the query to find
     const products = await ProductModel.find(query)
       .sort({ _id: SortOrder.ASC })
       .limit(safeLimit + 1);
@@ -49,13 +60,11 @@ export class ProductService {
     if (hasMore) {
       products.pop();
       const lastItem = products[products.length - 1];
-      nextCursor = lastItem._id.toString();
-    } else if (products.length > 0) {
-      const lastItem = products[products.length - 1];
-      nextCursor = lastItem._id.toString();
+      nextCursor = lastItem ? lastItem._id.toString() : null;
     }
 
-    const stats = await ProductService.getStockStats();
+    const statsQuery: ProductQuery = category ? { category } : {};
+    const stats = await ProductService.getStockStats(statsQuery);
 
     return {
       data: products,
@@ -71,25 +80,21 @@ export class ProductService {
     queryText: string,
     cursor: string | undefined,
     limit: number = PAGINATION_CONSTANTS.DEFAULT_LIMIT,
-    category?: string
+    category?: ProductCategory
   ): Promise<IPaginatedResponse<IProductDocument>> {
     const safeLimit = Math.min(limit, PAGINATION_CONSTANTS.MAX_LIMIT);
+    const trimmedQuery = queryText.trim().slice(0, 100);
+    if (!trimmedQuery) {
+      throw new AppError(HttpStatus.BAD_REQUEST, 'Query parameter q is required');
+    }
+    const safeQueryText = ProductService.escapeRegex(trimmedQuery);
 
-    const query: {
-      _id?: { $gt: string };
-      category?: string;
-      name?: { $regex: string; $options: string };
-    } = {
-      name: { $regex: queryText, $options: 'i' }
+    const cursorId = ProductService.ensureValidCursor(cursor);
+    const query: ProductQuery = {
+      ...(cursorId ? { _id: { $gt: cursorId } } : {}),
+      ...(category ? { category } : {}),
+      name: { $regex: safeQueryText, $options: 'i' }
     };
-
-    if (cursor) {
-      query._id = { $gt: cursor };
-    }
-
-    if (category) {
-      query.category = category;
-    }
 
     const products = await ProductModel.find(query)
       .sort({ _id: SortOrder.ASC })
@@ -101,13 +106,14 @@ export class ProductService {
     if (hasMore) {
       products.pop();
       const lastItem = products[products.length - 1];
-      nextCursor = lastItem._id.toString();
-    } else if (products.length > 0) {
-      const lastItem = products[products.length - 1];
-      nextCursor = lastItem._id.toString();
+      nextCursor = lastItem ? lastItem._id.toString() : null;
     }
 
-    const stats = await ProductService.getStockStats();
+    const statsQuery: ProductQuery = {
+      ...(category ? { category } : {}),
+      name: { $regex: safeQueryText, $options: 'i' }
+    };
+    const stats = await ProductService.getStockStats(statsQuery);
 
     return {
       data: products,

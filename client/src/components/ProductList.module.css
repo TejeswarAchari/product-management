@@ -102,6 +102,10 @@
   margin-bottom: 8px;
 }
 
+.shimmerDescWide {
+  width: 80%;
+}
+
 .shimmerPrice {
   width: 40%;
   height: 28px;

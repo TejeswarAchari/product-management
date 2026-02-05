@@ -38,7 +38,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, hasMore, loading, l
           <div className={`${styles.shimmerLine} ${styles.shimmerTitle}`}></div>
           <div className={`${styles.shimmerLine} ${styles.shimmerBadge}`}></div>
           <div className={`${styles.shimmerLine} ${styles.shimmerDesc}`}></div>
-          <div className={`${styles.shimmerLine} ${styles.shimmerDesc}`} style={{ width: '80%' }}></div>
+          <div className={`${styles.shimmerLine} ${styles.shimmerDesc} ${styles.shimmerDescWide}`}></div>
         </div>
         <div className={`${styles.shimmerLine} ${styles.shimmerPrice}`}></div>
       </div>
