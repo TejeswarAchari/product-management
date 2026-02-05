@@ -2,3 +2,6 @@ node_modules/
 .env
 dist
 build
+.env.test
+.env.production
+node_modules

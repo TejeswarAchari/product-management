@@ -1,41 +1,63 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { ProductCategory } from '../constants/app.constants';
+import { createProduct } from '../services/product.service';
+import { IProductCreatePayload } from '../types/product.types';
 import styles from './AddProductForm.module.css';
 
 interface AddProductFormProps {
-  onProductAdded: () => void; // Callback to refresh list
+  onProductAdded: () => void;
 }
 
 const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: 0,
-    stock: 0,
+    price: '',
+    stock: '',
     category: ProductCategory.ELECTRONICS
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
+    setIsError(false);
 
     try {
-      const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api/products';
-      await axios.post(url, formData);
+      const payload: IProductCreatePayload = {
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        price: Number(formData.price),
+        stock: Number(formData.stock),
+        category: formData.category
+      };
+
+      await createProduct(payload);
       setMessage('Product added successfully!');
       setFormData({
-        name: '', description: '', price: 0, stock: 0, category: ProductCategory.ELECTRONICS
+        name: '',
+        description: '',
+        price: '',
+        stock: '',
+        category: ProductCategory.ELECTRONICS
       });
-      onProductAdded(); // Trigger refresh in parent
+      onProductAdded();
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setMessage('');
+        setIsError(false);
+      }, 3000);
     } catch (error) {
+      setIsError(true);
       setMessage('Error adding product. Please try again.');
     } finally {
       setLoading(false);
@@ -44,28 +66,89 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      <h3>Add New Product</h3>
-      <div className={styles.group}>
-        <input name="name" placeholder="Product Name" value={formData.name} onChange={handleChange} required />
+      
+      {/* Decorative Header */}
+      <div className={styles.header}>
+        <div className={styles.iconWrapper}>+</div>
+        <h3 className={styles.title}>Add New Product</h3>
       </div>
+
       <div className={styles.group}>
-        <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} required />
+        <label className={styles.label}>Product Name</label>
+        <input 
+          name="name" 
+          placeholder="Enter product name..." 
+          value={formData.name} 
+          onChange={handleChange} 
+          required 
+          className={styles.input} 
+        />
       </div>
+
+      <div className={styles.group}>
+        <label className={styles.label}>Description</label>
+        <textarea 
+          name="description" 
+          placeholder="Describe your product..." 
+          value={formData.description} 
+          onChange={handleChange} 
+          required 
+          className={styles.textarea} 
+        />
+      </div>
+
       <div className={styles.row}>
-        <input type="number" name="price" placeholder="Price" value={formData.price} onChange={handleChange} required min="0" />
-        <input type="number" name="stock" placeholder="Stock" value={formData.stock} onChange={handleChange} required min="0" />
+        <div className={styles.group}>
+          <label className={styles.label}>Price ($)</label>
+          <input 
+            type="number" 
+            name="price" 
+            value={formData.price} 
+            onChange={handleChange} 
+            required 
+            min="0" 
+            step="0.01"
+            className={styles.input} 
+          />
+        </div>
+
+        <div className={styles.group}>
+          <label className={styles.label}>Stock Quantity</label>
+          <input 
+            type="number" 
+            name="stock" 
+            value={formData.stock} 
+            onChange={handleChange} 
+            required 
+            min="0" 
+            className={styles.input} 
+          />
+        </div>
       </div>
+
       <div className={styles.group}>
-        <select name="category" value={formData.category} onChange={handleChange}>
+        <label className={styles.label}>Category</label>
+        <select 
+          name="category" 
+          value={formData.category} 
+          onChange={handleChange}
+          className={styles.select}
+        >
           {Object.values(ProductCategory).map((cat) => (
             <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
       </div>
+
       <button type="submit" disabled={loading} className={styles.submitBtn}>
-        {loading ? 'Adding...' : 'Add Product'}
+        {loading ? 'Adding Product...' : 'Add Product'}
       </button>
-      {message && <p className={styles.message}>{message}</p>}
+
+      {message && (
+        <p className={`${styles.message} ${isError ? styles.messageError : styles.messageSuccess}`}>
+          {message}
+        </p>
+      )}
     </form>
   );
 };

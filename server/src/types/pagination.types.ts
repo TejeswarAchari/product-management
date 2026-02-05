@@ -4,9 +4,16 @@ export interface IPaginatedResponse<T> {
     nextCursor: string | null;
     hasMore: boolean;
   };
+  stats?: IPaginationStats;
 }
 
 export interface ICursorPaginationRequest {
   cursor?: string;
   limit?: number;
+}
+
+export interface IPaginationStats {
+  total: number;
+  inStock: number;
+  outOfStock: number;
 }

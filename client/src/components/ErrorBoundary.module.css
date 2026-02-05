@@ -1,0 +1,50 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, rgba(244, 197, 66, 0.18), transparent 50%),
+    var(--background);
+  padding: 1.5rem;
+}
+
+.card {
+  background: #111111;
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: var(--shadow-lg);
+  max-width: 480px;
+  text-align: center;
+  border: 1px solid var(--border-subtle);
+}
+
+.label {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.75rem;
+  color: var(--accent-yellow);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  margin: 0 0 0.6rem 0;
+  color: var(--foreground);
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0 0 1.5rem 0;
+}
+
+.button {
+  background: linear-gradient(135deg, var(--accent-yellow), var(--accent-yellow-deep));
+  color: #111111;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-weight: 600;
+  cursor: pointer;
+}
