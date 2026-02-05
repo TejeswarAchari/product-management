@@ -4,7 +4,7 @@ import { ProductCategory } from '../constants/app.constants';
 import styles from './AddProductForm.module.css';
 
 interface AddProductFormProps {
-  onProductAdded: () => void; // Callback to refresh list
+  onProductAdded: () => void;
 }
 
 const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
@@ -34,7 +34,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
       setFormData({
         name: '', description: '', price: 0, stock: 0, category: ProductCategory.ELECTRONICS
       });
-      onProductAdded(); // Trigger refresh in parent
+      onProductAdded();
     } catch (error) {
       setMessage('Error adding product. Please try again.');
     } finally {
@@ -46,17 +46,54 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
     <form onSubmit={handleSubmit} className={styles.form}>
       <h3>Add New Product</h3>
       <div className={styles.group}>
-        <input name="name" placeholder="Product Name" value={formData.name} onChange={handleChange} required />
+        <input 
+          name="name" 
+          placeholder="Product Name" 
+          value={formData.name} 
+          onChange={handleChange} 
+          required 
+          className={styles.input} /* FIX: Added class */
+        />
       </div>
       <div className={styles.group}>
-        <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} required />
+        <textarea 
+          name="description" 
+          placeholder="Description" 
+          value={formData.description} 
+          onChange={handleChange} 
+          required 
+          className={styles.textarea} /* FIX: Added class */
+        />
       </div>
       <div className={styles.row}>
-        <input type="number" name="price" placeholder="Price" value={formData.price} onChange={handleChange} required min="0" />
-        <input type="number" name="stock" placeholder="Stock" value={formData.stock} onChange={handleChange} required min="0" />
+        <input 
+          type="number" 
+          name="price" 
+          placeholder="Price" 
+          value={formData.price} 
+          onChange={handleChange} 
+          required 
+          min="0" 
+          className={styles.input} /* FIX: Added class */
+        />
+        <input 
+          type="number" 
+          name="stock" 
+          placeholder="Stock" 
+          value={formData.stock} 
+          onChange={handleChange} 
+          required 
+          min="0" 
+          className={styles.input} /* FIX: Added class */
+        />
       </div>
       <div className={styles.group}>
-        <select name="category" value={formData.category} onChange={handleChange}>
+        <select 
+          name="category" 
+          value={formData.category} 
+          onChange={handleChange}
+          className={styles.select} /* FIX: Added class */
+        >
           {Object.values(ProductCategory).map((cat) => (
             <option key={cat} value={cat}>{cat}</option>
           ))}

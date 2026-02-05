@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { IProduct, IPaginatedResponse } from '../types/product.types';
 import { fetchProducts } from '../services/product.service';
 
@@ -22,7 +22,6 @@ export const useInfiniteProducts = (
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Function to load the next page
   const loadMore = useCallback(async () => {
     if (loading || !hasMore || !nextCursor) return;
 
@@ -30,9 +29,12 @@ export const useInfiniteProducts = (
     try {
       const response = await fetchProducts(nextCursor, 10, initialCategory, initialSearch);
       
-      setProducts(prev => [...prev, ...response.data]);
-      setNextCursor(response.pagination.nextCursor);
-      setHasMore(response.pagination.hasMore);
+      // FIX: Ensure response structure is valid before updating
+      if (response && response.data) {
+        setProducts(prev => [...prev, ...response.data]);
+        setNextCursor(response.pagination?.nextCursor ?? null);
+        setHasMore(response.pagination?.hasMore ?? false);
+      }
     } catch (err) {
       setError('Failed to load more products');
     } finally {
@@ -40,17 +42,18 @@ export const useInfiniteProducts = (
     }
   }, [nextCursor, hasMore, loading, initialCategory, initialSearch]);
 
-  // Reset function (useful when changing filters)
   const reset = useCallback(() => {
     setProducts([]);
     setNextCursor(null);
-    setHasMore(true); // Assume true until first fetch
+    setHasMore(true);
     setError(null);
   }, []);
 
-  // Initialize with SSR data
+  // FIX: Add safety check for initial data structure
   const setInitialData = useCallback((data: IPaginatedResponse) => {
-    setProducts(data.data);
+    if (!data || !data.pagination) return; // Stop if data is malformed
+
+    setProducts(data.data || []);
     setNextCursor(data.pagination.nextCursor);
     setHasMore(data.pagination.hasMore);
   }, []);

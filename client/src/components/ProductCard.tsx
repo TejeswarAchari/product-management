@@ -7,12 +7,15 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  // FIX: Use deterministic date formatting (YYYY-MM-DD) to prevent Hydration Mismatch
+  const formattedDate = new Date(product.createdAt).toISOString().split('T')[0];
+
   return (
     <div className={styles.card}>
       <h3 className={styles.title}>{product.name}</h3>
       <div className={styles.meta}>
         <span className={styles.badge}>{product.category}</span>
-        <span className={styles.date}>{new Date(product.createdAt).toLocaleDateString()}</span>
+        <span className={styles.date}>{formattedDate}</span>
       </div>
       <p className={styles.description}>{product.description}</p>
       <div className={styles.footer}>
