@@ -7,21 +7,30 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  // FIX: Use deterministic date formatting (YYYY-MM-DD) to prevent Hydration Mismatch
+  // Deterministic date formatting
   const formattedDate = new Date(product.createdAt).toISOString().split('T')[0];
+  const isAvailable = product.stock > 0;
 
   return (
     <div className={styles.card}>
-      <h3 className={styles.title}>{product.name}</h3>
-      <div className={styles.meta}>
-        <span className={styles.badge}>{product.category}</span>
-        <span className={styles.date}>{formattedDate}</span>
+      <div className={styles.header}>
+        <h3 className={styles.title}>{product.name}</h3>
+        {/* We use data-attribute to style specific categories differently in CSS */}
+        <span className={styles.badge} data-category={product.category}>
+          {product.category}
+        </span>
       </div>
+      
+      <span className={styles.date}>Added: {formattedDate}</span>
+      
       <p className={styles.description}>{product.description}</p>
+      
       <div className={styles.footer}>
         <span className={styles.price}>${product.price}</span>
-        <span className={styles.stock}>
-          {product.stock > 0 ? `${product.stock} in stock` : 'Out of Stock'}
+        
+        <span className={`${styles.stock} ${isAvailable ? styles.inStock : styles.outStock}`}>
+          <span className={styles.dot}></span>
+          {isAvailable ? `${product.stock} in stock` : 'Out of Stock'}
         </span>
       </div>
     </div>

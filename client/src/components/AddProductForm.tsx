@@ -35,6 +35,9 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
         name: '', description: '', price: 0, stock: 0, category: ProductCategory.ELECTRONICS
       });
       onProductAdded();
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setMessage(''), 3000);
     } catch (error) {
       setMessage('Error adding product. Please try again.');
     } finally {
@@ -44,65 +47,91 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onProductAdded }) => {
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      <h3>Add New Product</h3>
+      
+      {/* Decorative Header */}
+      <div className={styles.header}>
+        <div className={styles.iconWrapper}>+</div>
+        <h3 className={styles.title}>Add New Product</h3>
+      </div>
+
       <div className={styles.group}>
+        <label className={styles.label}>Product Name</label>
         <input 
           name="name" 
-          placeholder="Product Name" 
+          placeholder="Enter product name..." 
           value={formData.name} 
           onChange={handleChange} 
           required 
-          className={styles.input} /* FIX: Added class */
+          className={styles.input} 
         />
       </div>
+
       <div className={styles.group}>
+        <label className={styles.label}>Description</label>
         <textarea 
           name="description" 
-          placeholder="Description" 
+          placeholder="Describe your product..." 
           value={formData.description} 
           onChange={handleChange} 
           required 
-          className={styles.textarea} /* FIX: Added class */
+          className={styles.textarea} 
         />
       </div>
+
       <div className={styles.row}>
-        <input 
-          type="number" 
-          name="price" 
-          placeholder="Price" 
-          value={formData.price} 
-          onChange={handleChange} 
-          required 
-          min="0" 
-          className={styles.input} /* FIX: Added class */
-        />
-        <input 
-          type="number" 
-          name="stock" 
-          placeholder="Stock" 
-          value={formData.stock} 
-          onChange={handleChange} 
-          required 
-          min="0" 
-          className={styles.input} /* FIX: Added class */
-        />
+        <div className={styles.group}>
+          <label className={styles.label}>Price ($)</label>
+          <input 
+            type="number" 
+            name="price" 
+            value={formData.price} 
+            onChange={handleChange} 
+            required 
+            min="0" 
+            className={styles.input} 
+          />
+        </div>
+
+        <div className={styles.group}>
+          <label className={styles.label}>Stock Quantity</label>
+          <input 
+            type="number" 
+            name="stock" 
+            value={formData.stock} 
+            onChange={handleChange} 
+            required 
+            min="0" 
+            className={styles.input} 
+          />
+        </div>
       </div>
+
       <div className={styles.group}>
+        <label className={styles.label}>Category</label>
         <select 
           name="category" 
           value={formData.category} 
           onChange={handleChange}
-          className={styles.select} /* FIX: Added class */
+          className={styles.select}
         >
           {Object.values(ProductCategory).map((cat) => (
             <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
       </div>
+
       <button type="submit" disabled={loading} className={styles.submitBtn}>
-        {loading ? 'Adding...' : 'Add Product'}
+        {loading ? 'Adding Product...' : 'Add Product'}
       </button>
-      {message && <p className={styles.message}>{message}</p>}
+
+      {message && (
+        <p className={styles.message} style={{ 
+          background: message.includes('Error') ? '#ffebee' : '#e8f5e9',
+          color: message.includes('Error') ? '#c62828' : '#2e7d32' 
+        }}>
+          {message}
+        </p>
+      )}
     </form>
   );
 };
