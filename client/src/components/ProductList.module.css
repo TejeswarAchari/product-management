@@ -1,0 +1,40 @@
+.container {
+  padding: 20px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.loadMoreContainer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.loadMoreBtn {
+  padding: 12px 24px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.loadMoreBtn:hover {
+  background-color: #005bb5;
+}
+
+.loadMoreBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.endMessage {
+  color: #888;
+  font-style: italic;
+}
