@@ -7,5 +7,5 @@ export interface IProduct {
   price: number;
   category: ProductCategory;
   stock: number;
-  createdAt: Date;
+  createdAt?: Date;
 }
