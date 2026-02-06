@@ -4,4 +4,6 @@ dist
 build
 .env.test
 .env.production
+.env.local
 node_modules
+!.env.example

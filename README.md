@@ -1,209 +1,259 @@
-# 🚀 Product Management System
+# Product Management System
 
-A modern, full-stack **MERN + Next.js + TypeScript** product catalog application with **Server-Side Rendering (SSR)**, **cursor-based pagination**, and real-time inventory management.
-
----
-
-## 📊 Tech Stack
-
-![React](https://img.shields.io/badge/React-19.2.3-61DAFB?style=for-the-badge&logo=react)
-![Next.js](https://img.shields.io/badge/Next.js-16.1.6-000000?style=for-the-badge&logo=next.js)
-![Node.js](https://img.shields.io/badge/Node.js-19.0.0-339933?style=for-the-badge&logo=node.js)
-![Express](https://img.shields.io/badge/Express-5.2.1-000000?style=for-the-badge&logo=express)
-![MongoDB](https://img.shields.io/badge/MongoDB-9.1.6-13AA52?style=for-the-badge&logo=mongodb)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-3178C6?style=for-the-badge&logo=typescript)
-![Axios](https://img.shields.io/badge/Axios-1.13.4-5A2D81?style=for-the-badge&logo=axios)
-![CSS Modules](https://img.shields.io/badge/CSS_Modules-Styled-06B6D4?style=for-the-badge&logo=css3)
+A production-grade, full-stack **TypeScript** product catalog built with **Next.js (SSR)**, **Express.js**, and **MongoDB** — featuring **cursor-based pagination**, real-time search, category filtering, and a modular architecture designed for scalability.
 
 ---
 
-## ✨ Features
+## Tech Stack
 
-### Core Features
-- ✅ **Server-Side Rendering (SSR)** – Initial product load on server for optimal performance
-- ✅ **Cursor-Based Pagination** – Efficient, scalable pagination using MongoDB `_id` cursors
-- ✅ **Infinite Scroll / Load More** – Seamless UX with automatic or manual pagination
-- ✅ **Product Search** – Real-time search by product name with debouncing
-- ✅ **Category Filter** – Browse products by category (Electronics, Clothing, Books, Food)
-- ✅ **Add Product** – Create new products with form validation
-- ✅ **Inventory Tracking** – Real-time stock status and counts
-
-### Technical Highlights
-- 🔒 **Type-Safe** – Full TypeScript implementation with strict mode enabled
-- 📦 **Modular Architecture** – Separation of concerns (Controllers → Services → Models)
-- 🎯 **Centralized Error Handling** – Express middleware for consistent error responses
-- ✅ **Input Validation** – Query and payload validation with safe defaults
-- 🧼 **String Sanitization** – Trimmed, length-limited inputs and escaped search regex
-- 🔑 **Environment Management** – Separate `.env.test` and `.env.production` configurations
-- ⏱️ **Request Timeouts** – Server timeouts to prevent hung requests
-- 🧩 **Reusable Components** – React components with CSS Modules
-- 🪝 **Custom Hooks** – `useInfiniteProducts` for pagination logic
-- 🌐 **CORS Enabled** – Cross-origin requests properly configured
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| **Frontend** | Next.js 16, React 19, TypeScript 5 | SSR, UI components, routing |
+| **Backend** | Express.js 5, Node.js, TypeScript 5 | REST API, business logic |
+| **Database** | MongoDB + Mongoose 9 | Document storage, indexing |
+| **HTTP Client** | Axios | API communication |
+| **Styling** | CSS Modules | Component-scoped, zero-conflict styles |
 
 ---
 
-## 📋 Project Structure
+## Features
+
+### Functional
+- **Server-Side Rendering** — First page rendered on server via `getServerSideProps` for SEO & instant load
+- **Cursor-Based Pagination** — Infinite scroll + Load More button using MongoDB `_id` as cursor
+- **Product Search** — Debounced real-time search by product name with regex escaping
+- **Category Filter** — Filter by Electronics, Clothing, Books, Food
+- **Add Product** — Validated form with success/error feedback
+- **Inventory Dashboard** — Live counts for total, in-stock, and out-of-stock products
+
+### Technical
+- **Strict TypeScript** — `strict: true`, `noImplicitAny: true`, zero `any` types across entire codebase
+- **Enums** — `ProductCategory`, `HttpStatus`, `SortOrder` for type-safe constants
+- **Constants Objects** — `PAGINATION_CONSTANTS`, `API_ENDPOINTS` using `as const`
+- **Type Interfaces** — `IProduct`, `IPaginatedResponse<T>`, `ICursorPaginationRequest`
+- **Modular Architecture** — Controller → Service → Model separation (backend); Components → Hooks → Services (frontend)
+- **Centralized Error Handling** — Express middleware catches all errors with consistent JSON responses
+- **Input Validation & Sanitization** — Trimmed strings, length caps, escaped regex, safe number parsing
+- **Graceful Shutdown** — Handles `SIGTERM`/`SIGINT` for clean database disconnection in production
+- **Request Timeouts** — 30-second timeout per request to prevent hung connections
+- **CORS** — Configurable origin restriction
+- **Environment Management** — Separate `.env.test` and `.env.production` with startup validation
+
+---
+
+## Project Structure
 
 ```
 product-management/
-├── server/                          # Express.js + MongoDB backend
+├── server/                             # Express.js Backend
 │   ├── src/
+│   │   ├── server.ts                   # App bootstrap, DB connection, graceful shutdown
 │   │   ├── config/
-│   │   │   └── env.config.ts       # Environment validation & loading
+│   │   │   └── env.config.ts           # Environment validation & typed config export
 │   │   ├── constants/
-│   │   │   └── app.constants.ts    # Enums, API endpoints, pagination settings
+│   │   │   └── app.constants.ts        # Enums (ProductCategory, HttpStatus, SortOrder),
+│   │   │                               #   PAGINATION_CONSTANTS, API_ENDPOINTS
 │   │   ├── types/
-│   │   │   ├── product.types.ts    # IProduct interface
-│   │   │   └── pagination.types.ts # IPaginatedResponse, ICursorPaginationRequest
+│   │   │   ├── product.types.ts        # IProduct interface
+│   │   │   └── pagination.types.ts     # IPaginatedResponse<T>, ICursorPaginationRequest
 │   │   ├── models/
-│   │   │   └── Product.model.ts    # Mongoose Product schema
+│   │   │   └── Product.model.ts        # Mongoose schema with indexes on name & category
 │   │   ├── controllers/
-│   │   │   └── product.controller.ts # HTTP request handlers
+│   │   │   └── product.controller.ts   # Thin HTTP handlers — parse, delegate, respond
 │   │   ├── services/
-│   │   │   └── product.service.ts   # Business logic & database queries
+│   │   │   └── product.service.ts      # Business logic: pagination, search, CRUD
 │   │   ├── routes/
-│   │   │   └── product.routes.ts    # API endpoint definitions
+│   │   │   └── product.routes.ts       # Route definitions
 │   │   ├── middleware/
-│   │   │   └── error.middleware.ts  # Centralized error handling
-│   │   └── server.ts                # Express app initialization
-│   ├── .env.test                    # Development environment variables
-│   ├── .env.production              # Production environment variables
+│   │   │   └── error.middleware.ts      # AppError class + global error handler
+│   │   └── utils/
+│   │       └── validation.ts           # parseLimit, parseCategory, sanitizeSearchQuery,
+│   │                                   #   validateCreateProductPayload
+│   ├── .env.test                       # Development environment variables
+│   ├── .env.production                 # Production environment variables
+│   ├── .env.example                    # Template for environment setup
 │   ├── package.json
-│   └── tsconfig.json
+│   └── tsconfig.json                   # strict: true, noImplicitAny: true
 │
-├── client/                          # Next.js + React frontend
+├── client/                             # Next.js Frontend
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── ProductCard.tsx      # Individual product display
-│   │   │   ├── ProductList.tsx      # Product grid with intersection observer
-│   │   │   ├── AddProductForm.tsx   # Product creation form
-│   │   │   ├── ErrorBoundary.tsx    # React error boundary
-│   │   │   └── *.module.css         # Component-scoped styles
-│   │   ├── hooks/
-│   │   │   └── useInfiniteProducts.ts # Pagination state management
-│   │   ├── services/
-│   │   │   └── product.service.ts   # API client functions
-│   │   ├── types/
-│   │   │   └── product.types.ts     # TypeScript interfaces
-│   │   ├── constants/
-│   │   │   └── app.constants.ts     # Enums & API endpoints
 │   │   ├── pages/
-│   │   │   ├── _app.tsx             # Next.js App component
-│   │   │   ├── _document.tsx        # HTML document structure
-│   │   │   └── index.tsx            # Home page with SSR
+│   │   │   ├── index.tsx               # Home — SSR via getServerSideProps
+│   │   │   ├── _app.tsx                # App wrapper with ErrorBoundary
+│   │   │   ├── _document.tsx           # HTML document (lang="en")
+│   │   │   └── 404.tsx                 # Custom 404 page
+│   │   ├── components/
+│   │   │   ├── ProductCard.tsx         # Single product card display
+│   │   │   ├── ProductList.tsx         # Grid with IntersectionObserver + Load More
+│   │   │   ├── AddProductForm.tsx      # Product creation form with validation
+│   │   │   ├── ErrorBoundary.tsx       # React error boundary
+│   │   │   └── *.module.css            # Component-scoped styles
+│   │   ├── hooks/
+│   │   │   └── useInfiniteProducts.ts  # Custom hook: cursor state, loadMore, refresh
+│   │   ├── services/
+│   │   │   └── product.service.ts      # Axios API client (fetchProducts, createProduct)
+│   │   ├── types/
+│   │   │   └── product.types.ts        # IProduct, IPaginatedResponse<T>,
+│   │   │                               #   ICursorPaginationRequest, IProductCreatePayload
+│   │   ├── constants/
+│   │   │   └── app.constants.ts        # ProductCategory enum, PAGINATION_CONSTANTS
 │   │   └── styles/
-│   │       └── *.module.css         # Global & page-specific styles
-│   ├── .env.test                    # Development environment variables
-│   ├── .env.production              # Production environment variables
+│   │       ├── globals.css             # CSS variables, typography, dark theme
+│   │       ├── Home.module.css         # Home page layout
+│   │       └── NotFound.module.css     # 404 page styles
+│   ├── .env.test                       # Development: NEXT_PUBLIC_API_URL
+│   ├── .env.production                 # Production: NEXT_PUBLIC_API_URL
+│   ├── .env.example                    # Template for environment setup
+│   ├── next.config.ts                  # reactStrictMode: true
 │   ├── package.json
-│   ├── next.config.ts
-│   └── tsconfig.json
+│   └── tsconfig.json                   # strict: true, jsx: preserve
 │
-├── .env.example                     # Configuration template
-├── .gitignore                       # Git ignore rules
-├── README.md                        # This file
-└── package.json                     # Root workspace config
+├── .env.example                        # Combined server + client template
+├── .gitignore                          # Ignores node_modules, dist, .env.test, .env.production
+└── README.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- **Node.js** 18+ and **npm** / **yarn**
-- **MongoDB** (local or Atlas)
-- **Git** for version control
 
-### Installation
+| Requirement | Version |
+|-------------|---------|
+| Node.js | 18+ |
+| npm | 9+ |
+| MongoDB | 6+ (local) or Atlas |
+| Git | 2.30+ |
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/TejeswarAchari/product-management.git
-   cd product-management
-   ```
+### 1. Clone & Install
 
-2. **Install server dependencies**
-   ```bash
-   cd server
-   npm install
-   ```
+```bash
+git clone https://github.com/TejeswarAchari/product-management.git
+cd product-management
+```
 
-3. **Install client dependencies**
-   ```bash
-   cd ../client
-   npm install
-   ```
+```bash
+# Install server dependencies
+cd server && npm install
 
-4. **Create environment files** (from `.env.example`)
-   ```bash
-   # In server/
-   cp .env.example .env.test
-   cp .env.example .env.production
-   
-   # In client/
-   cp .env.example .env.test
-   cp .env.example .env.production
-   ```
+# Install client dependencies
+cd ../client && npm install
+```
 
-5. **Edit environment files** with your MongoDB connection strings and API URLs
+### 2. Configure Environment
 
----
+```bash
+# Server
+cd server
+cp .env.example .env.test
+cp .env.example .env.production
+# Edit .env.production with your MongoDB Atlas URI and domain
 
-## 🧪 Running in Test Environment
+# Client
+cd ../client
+cp .env.example .env.test
+cp .env.example .env.production
+# Edit .env.production with your deployed API URL
+```
 
-### Start the Backend Server
+**Server `.env.test`** (development):
+```dotenv
+NODE_ENV=test
+PORT=5001
+MONGODB_URI=mongodb://localhost:27017/products_test
+CORS_ORIGIN=http://localhost:3000
+```
+
+**Server `.env.production`**:
+```dotenv
+NODE_ENV=production
+PORT=5000
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/products
+CORS_ORIGIN=https://yourdomain.com
+```
+
+**Client `.env.test`** (development):
+```dotenv
+NEXT_PUBLIC_API_URL=http://localhost:5001
+```
+
+**Client `.env.production`**:
+```dotenv
+NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+```
+
+### 3. Start Development Servers
+
+**Terminal 1 — Backend:**
 ```bash
 cd server
 npm run dev
+# → Server running on http://localhost:5001
+# → Loads .env.test automatically (NODE_ENV defaults to test)
 ```
-The server runs on `http://localhost:5001` (configured in `.env.test`)
 
-**Available endpoints:**
-- `GET /api/products?cursor=&limit=10` – Fetch paginated products
-- `POST /api/products` – Create new product
-- `GET /api/products/search?q=query` – Search products
-
-### Start the Frontend Client
-In a new terminal:
+**Terminal 2 — Frontend:**
 ```bash
 cd client
 npm run dev
+# → Client running on http://localhost:3000
+# → Falls back to http://localhost:5001 if NEXT_PUBLIC_API_URL is unset
 ```
-The client runs on `http://localhost:3000`
 
 ---
 
-## 🏭 Running in Production Environment
+## Production Build & Deployment
 
-### Build & Run Backend
+### Backend
 ```bash
 cd server
-npm run build        # Compile TypeScript
-npm run start        # Run compiled server
+npm run build           # Compiles TypeScript → dist/
+npm start               # Runs with NODE_ENV=production, loads .env.production
 ```
 
-### Build & Run Frontend
+### Frontend
 ```bash
 cd client
-npm run build        # Next.js production build
-npm run start        # Start production server
+npm run build           # Next.js production build (loads .env.production)
+npm start               # Starts production server on port 3000
 ```
+
+### Switching Environments
+
+The server automatically selects the correct `.env` file based on `NODE_ENV`:
+
+| Command | NODE_ENV | Env File Loaded |
+|---------|----------|-----------------|
+| `npm run dev` | test (default) | `.env.test` |
+| `npm start` | production | `.env.production` |
+| `npm run start:test` | test | `.env.test` |
+
+The `env.config.ts` module **validates all required variables at startup** — if any are missing, the server throws immediately with a descriptive error instead of failing silently later.
 
 ---
 
-## 📖 API Endpoints
+## API Endpoints
 
-### GET /api/products
-Fetch paginated products with optional filtering.
+### `GET /api/products`
 
-**Query Parameters:**
-- `cursor` (string, optional) – MongoDB `_id` for pagination
-- `limit` (number, optional) – Items per page (default: 10, max: 50)
-- `category` (string, optional) – Filter by category
+Fetch paginated products with optional category filter.
 
-**Example:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `cursor` | string | No | MongoDB `_id` for cursor-based pagination |
+| `limit` | number | No | Items per page (default: 10, max: 50) |
+| `category` | string | No | Filter: `ELECTRONICS`, `CLOTHING`, `BOOKS`, `FOOD` |
+
 ```bash
-curl "http://localhost:5001/api/products?limit=10&category=ELECTRONICS"
+# First page
+curl "http://localhost:5001/api/products?limit=10"
+
+# Next page (using cursor from previous response)
+curl "http://localhost:5001/api/products?cursor=507f1f77bcf86cd799439011&limit=10"
+
+# Filtered
+curl "http://localhost:5001/api/products?category=ELECTRONICS&limit=10"
 ```
 
 **Response:**
@@ -212,8 +262,8 @@ curl "http://localhost:5001/api/products?limit=10&category=ELECTRONICS"
   "data": [
     {
       "_id": "507f1f77bcf86cd799439011",
-      "name": "Laptop",
-      "description": "High-performance laptop",
+      "name": "Laptop Pro",
+      "description": "High-performance laptop with 16GB RAM",
       "price": 999.99,
       "category": "ELECTRONICS",
       "stock": 5,
@@ -226,160 +276,156 @@ curl "http://localhost:5001/api/products?limit=10&category=ELECTRONICS"
   },
   "stats": {
     "total": 50,
-    "inStock": 40,
-    "outOfStock": 10
+    "inStock": 42,
+    "outOfStock": 8
   }
 }
 ```
 
-### POST /api/products
-Create a new product.
+### `POST /api/products`
+
+Create a new product with server-side validation.
 
 **Request Body:**
 ```json
 {
   "name": "Wireless Mouse",
-  "description": "Ergonomic wireless mouse",
+  "description": "Ergonomic wireless mouse with USB-C",
   "price": 29.99,
   "category": "ELECTRONICS",
   "stock": 100
 }
 ```
 
-**Response:**
-```json
-{
-  "_id": "507f1f77bcf86cd799439013",
-  "name": "Wireless Mouse",
-  "description": "Ergonomic wireless mouse",
-  "price": 29.99,
-  "category": "ELECTRONICS",
-  "stock": 100,
-  "createdAt": "2026-02-06T10:30:00.000Z"
-}
-```
+**Validation Rules:**
+- `name` — Required, trimmed, max 120 chars
+- `description` — Required, trimmed, max 2000 chars
+- `price` — Required, finite number ≥ 0
+- `stock` — Required, integer ≥ 0
+- `category` — Required, must be valid `ProductCategory` enum value
 
-### GET /api/products/search
-Search products by name with optional filtering.
+### `GET /api/products/search`
 
-**Query Parameters:**
-- `q` (string, required) – Search query
-- `cursor` (string, optional) – Pagination cursor
-- `limit` (number, optional) – Items per page
-- `category` (string, optional) – Filter by category
+Search products by name with optional category filter. Supports cursor pagination.
 
-**Example:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `q` | string | **Yes** | Search query (case-insensitive, regex-escaped) |
+| `cursor` | string | No | Pagination cursor |
+| `limit` | number | No | Items per page |
+| `category` | string | No | Category filter |
+
 ```bash
 curl "http://localhost:5001/api/products/search?q=laptop&limit=10"
 ```
 
 ---
 
-## 🔧 Configuring Environments
+## Architecture
 
-### `.env.test`
-Used during development with local MongoDB:
-```dotenv
-NODE_ENV=test
-PORT=5001
-MONGODB_URI=mongodb://localhost:27017/products_test
-CORS_ORIGIN=http://localhost:3000
-NEXT_PUBLIC_API_URL=http://localhost:5001
+### Backend — Controller → Service → Model
+
+```
+HTTP Request
+    │
+    ▼
+┌─────────────────┐
+│   Routes         │  Route definitions (product.routes.ts)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Controller     │  Parse request, validate input, delegate to service
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Service        │  Business logic, database queries, cursor math
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Model          │  Mongoose schema, indexes, data validation
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   MongoDB        │  Document storage
+└─────────────────┘
+
+  Error at any layer → caught by error.middleware.ts → consistent JSON response
 ```
 
-### `.env.production`
-Used in production with Atlas or remote MongoDB:
-```dotenv
-NODE_ENV=production
-PORT=5000
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/products
-CORS_ORIGIN=https://yourdomain.com
-NEXT_PUBLIC_API_URL=https://api.yourdomain.com
+### Frontend — Pages → Components → Hooks → Services
+
+```
+getServerSideProps (SSR)
+    │
+    ▼
+┌─────────────────┐
+│   index.tsx      │  Page component with SSR initial data
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    ▼         ▼
+┌────────┐ ┌──────────────┐
+│ Form   │ │ ProductList   │  Grid + IntersectionObserver + Load More
+└────────┘ └──────┬───────┘
+                  │
+                  ▼
+           ┌──────────────┐
+           │ ProductCard   │  Individual product display
+           └──────────────┘
+
+  useInfiniteProducts (hook)  →  product.service.ts (Axios)  →  Backend API
 ```
 
-**Switching environments:**
-- The server automatically loads `.env.test` or `.env.production` based on `NODE_ENV`
-- All required variables are validated at startup
-- Missing variables throw an error preventing startup
+### Cursor-Based Pagination — How It Works
+
+```
+Client Request: GET /api/products?limit=3
+
+Server Logic:
+  1. Fetch limit + 1 documents (4 in this case)
+  2. If 4 results returned → hasMore = true, pop the extra
+  3. nextCursor = last document's _id
+  4. Return 3 documents + pagination metadata
+
+Timeline:
+  ┌──────────────────────────────────────────┐
+  │ Page 1: ?limit=3                         │
+  │   Fetch 4 → got 4 → hasMore=true        │
+  │   Return 3, nextCursor = doc3._id        │
+  ├──────────────────────────────────────────┤
+  │ Page 2: ?cursor=doc3._id&limit=3         │
+  │   Query: { _id: { $gt: doc3._id } }     │
+  │   Fetch 4 → got 2 → hasMore=false       │
+  │   Return 2, nextCursor = null            │
+  └──────────────────────────────────────────┘
+```
+
+**Why cursor over offset?**
+- Offset breaks when items are inserted/deleted mid-pagination
+- Cursor is stable — always starts from a known position
+- Uses the indexed `_id` field — no full collection scans
 
 ---
 
-## 📐 Architecture & Design Patterns
+## TypeScript Strictness
 
-### Backend Architecture
-```
-Request → Controller → Service → Model → Database
-  ↓         (thin)      (logic)  (schema)
-Response
-```
+### tsconfig.json (both server & client)
 
-- **Controller** – Parses requests, delegates to services
-- **Service** – Contains business logic, database queries, reusable functions
-- **Model** – Mongoose schema with validations
-- **Error Middleware** – Catches all errors and returns consistent responses
-
-### Frontend Architecture
-- **Pages** – Next.js pages with SSR support
-- **Components** – Reusable React components with CSS Modules
-- **Hooks** – Custom `useInfiniteProducts` for state management
-- **Services** – Axios-based API client
-- **Types** – Full TypeScript interfaces for type safety
-
-### Pagination Strategy
-1. **Cursor-Based** – Uses MongoDB `_id` as cursor (globally unique, sortable)
-2. **Limit + 1** – Fetches `limit + 1` items to detect if more exist
-3. **hasMore Flag** – Indicates if more products are available
-4. **nextCursor** – Points to the last item's `_id` for the next fetch
-5. **Sorting** – Always by `_id` ascending for consistent ordering
-
----
-
-## 🛠 Technology Decisions
-
-### Why TypeScript?
-- Full type safety from backend to frontend
-- Catches errors at compile-time, not runtime
-- Improved IDE autocomplete and refactoring
-- Better documentation through interfaces
-
-### Why Next.js?
-- Built-in SSR for optimal SEO and performance
-- File-based routing is simpler than React Router
-- API routes could be added for middleware functions
-- Automatic code splitting and optimization
-
-### Why Cursor Pagination?
-- Scales better than offset-based pagination
-- No issues with deletes/inserts mid-pagination
-- More efficient database queries (indexed `_id`)
-- Better UX for real-time data
-
-### Why CSS Modules?
-- Component-scoped styles prevent naming conflicts
-- Smaller bundle size than CSS-in-JS
-- Better performance than inline styles
-- Works seamlessly with Next.js
-
----
-
-## 📝 Code Quality
-
-### TypeScript Strict Mode
-All files use TypeScript strict mode:
 ```json
 {
   "compilerOptions": {
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true
+    "noImplicitAny": true
   }
 }
 ```
 
-### No `any` Types
-All variables and function parameters have explicit types.
+### Enums
 
-### Enums & Constants
 ```typescript
 export enum ProductCategory {
   ELECTRONICS = 'ELECTRONICS',
@@ -388,173 +434,183 @@ export enum ProductCategory {
   FOOD = 'FOOD'
 }
 
+export enum HttpStatus {
+  OK = 200,
+  CREATED = 201,
+  BAD_REQUEST = 400,
+  NOT_FOUND = 404,
+  INTERNAL_SERVER_ERROR = 500
+}
+
+export enum SortOrder {
+  ASC = 'asc',
+  DESC = 'desc'
+}
+```
+
+### Constants Objects
+
+```typescript
 export const PAGINATION_CONSTANTS = {
   DEFAULT_LIMIT: 10,
   MAX_LIMIT: 50
 } as const;
+
+export const API_ENDPOINTS = {
+  PRODUCTS: '/api/products',
+  PRODUCTS_BY_ID: '/api/products/:id',
+  PRODUCTS_SEARCH: '/api/products/search'
+} as const;
 ```
 
-### Error Handling
-Centralized error middleware:
+### Interfaces
+
 ```typescript
-export const errorHandler = (
-  err: AppError,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-): void => {
-  const status = err.status ?? HttpStatus.INTERNAL_SERVER_ERROR;
-  res.status(status).json({ message: err.message });
-};
-```
+export interface IProduct {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: ProductCategory;
+  stock: number;
+  createdAt: Date;
+}
 
----
+export interface IPaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    nextCursor: string | null;
+    hasMore: boolean;
+  };
+  stats?: IPaginationStats;
+}
 
-## 🧪 Testing
-
-Unit tests can be added using **Jest** and **React Testing Library**.
-
-Example test (not included but recommended):
-```typescript
-describe('useInfiniteProducts', () => {
-  it('should load more products on loadMore call', async () => {
-    // Test implementation
-  });
-});
-```
-
----
-
-## 📊 Database Schema
-
-### Product Collection
-```javascript
-{
-  _id: ObjectId,
-  name: String (indexed),
-  description: String,
-  price: Number,
-  category: Enum (indexed),
-  stock: Number,
-  createdAt: Date (default: now)
+export interface ICursorPaginationRequest {
+  cursor?: string;
+  limit?: number;
 }
 ```
 
-**Indexes:**
-- `name` – For search performance
-- `category` – For filtering
-- `_id` – Default (used for cursor pagination)
+---
+
+## Security
+
+| Measure | Implementation |
+|---------|---------------|
+| **CORS** | Configured origin restriction via `CORS_ORIGIN` env variable |
+| **Input Validation** | Server validates all request params and payloads before processing |
+| **Search Hardening** | Regex special characters escaped to prevent ReDoS attacks |
+| **String Sanitization** | Inputs trimmed, whitespace normalized, length-capped |
+| **Environment Secrets** | All credentials in `.env` files, never hardcoded, git-ignored |
+| **Error Isolation** | No stack traces or internal details exposed in API error responses |
+| **Request Timeouts** | 30-second timeout prevents slow/hung requests |
+| **Graceful Shutdown** | `SIGTERM`/`SIGINT` handlers close DB connections cleanly |
+| **Cursor Validation** | Invalid ObjectId cursors rejected with 400 before hitting the DB |
 
 ---
 
-## 🔐 Security Considerations
+## Database Schema
 
-- ✅ **CORS** – Configured to allow only specified origins
-- ✅ **Environment Variables** – Secrets never hardcoded
-- ✅ **Input Validation** – Category, limit, and payload validation
-- ✅ **Search Hardening** – Escaped regex to prevent ReDoS
-- ✅ **Error Messages** – No stack traces exposed in production
-- ✅ **Request Timeouts** – Prevents slow-hanging requests
-- ⚠️ **TODO** – Add rate limiting and auth middleware
+```javascript
+// Product Collection
+{
+  _id: ObjectId,          // Auto-generated, used as cursor
+  name: String,           // Indexed — enables fast search
+  description: String,
+  price: Number,          // min: 0
+  category: String,       // Indexed — enum: ELECTRONICS | CLOTHING | BOOKS | FOOD
+  stock: Number,          // min: 0, default: 0
+  createdAt: Date         // default: Date.now
+}
+```
+
+**Indexes:** `name` (search), `category` (filter), `_id` (cursor pagination — default)
 
 ---
 
-## 📚 Git Workflow
-
-Feature branches and Pull Requests follow a standard workflow:
+## Git Workflow
 
 ```bash
-# Create feature branch
+# Feature branch workflow
 git checkout -b feature/project-setup
-
-# Make changes and commit
-git commit -m "feat: add project structure"
-
-# Push and create PR
+git commit -m "feat: initialize project structure with TypeScript config"
 git push origin feature/project-setup
+# → Create Pull Request → Review → Merge to main
 ```
 
-**Branch naming convention:**
-- `feature/project-setup` – Initial setup
-- `feature/backend-api` – Backend implementation
-- `feature/frontend-ui` – Frontend implementation
-- `feature/integration` – Integration and testing
+**Branch conventions used:**
+| Branch | Purpose |
+|--------|---------|
+| `feature/project-setup` | Initial scaffolding, tsconfig, env files |
+| `feature/backend-api` | Express server, routes, controllers, services |
+| `feature/frontend-ui` | Next.js pages, components, hooks, styles |
+| `feature/integration` | End-to-end testing, bug fixes, README |
 
 ---
 
-## 🎯 Evaluation Criteria Met
+## Troubleshooting
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| **Git Workflow** | ✅ | 4+ feature branches, PRs all merged to main |
-| **TypeScript** | ✅ | Strict mode, enums, constants, interfaces |
-| **Cursor Pagination** | ✅ | MongoDB `_id` cursor, limit+1 strategy |
-| **SSR** | ✅ | Next.js `getServerSideProps` implementation |
-| **Modularity** | ✅ | Controller-Service-Model separation |
-| **Error Handling** | ✅ | Centralized middleware |
-| **Environment Config** | ✅ | Validated, loads by NODE_ENV |
-| **Feature Completeness** | ✅ | Listing, search, filter, add, pagination |
-| **Code Quality** | ✅ | No `any` types, reusable components |
-| **Documentation** | ✅ | This README with setup, API docs, architecture |
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `MONGODB_URI is strictly required` | Missing `.env.test` or `.env.production` | Create env file from `.env.example` |
+| `EADDRINUSE :::5001` | Port already in use | Change `PORT` in `.env.test` or kill the process |
+| `CORS policy blocked` | `CORS_ORIGIN` doesn't match client URL | Set `CORS_ORIGIN=http://localhost:3000` in server env |
+| `Invalid cursor` | Malformed cursor string in request | Ensure cursor is a valid 24-char MongoDB ObjectId |
+| `Network Error` on client | Server not running | Start the server first with `npm run dev` |
+| `Cannot find module` | Dependencies not installed | Run `npm install` in both `server/` and `client/` |
 
 ---
 
-## 🐛 Troubleshooting
+## Evaluation Checklist
 
-### MongoDB Connection Error
-```
-Error: MONGODB_URI is strictly required
-```
-**Solution:** Ensure `.env.test` or `.env.production` has correct `MONGODB_URI`
+### Code Quality
+| Criterion | Status |
+|-----------|--------|
+| TypeScript strict mode (`tsconfig.json`) | ✅ Both server & client |
+| Enums defined (`ProductCategory`, `HttpStatus`, `SortOrder`) | ✅ Server constants |
+| Constants objects (`PAGINATION_CONSTANTS`, `API_ENDPOINTS`) | ✅ Both server & client |
+| Interfaces defined (`IProduct`, `IPaginatedResponse<T>`, `ICursorPaginationRequest`) | ✅ Both server & client |
+| No `any` types used | ✅ Zero occurrences |
+| Modular folder structure | ✅ Separated layers |
 
-### Port Already in Use
-```
-Error: listen EADDRINUSE: address already in use :::5001
-```
-**Solution:** Change PORT in `.env.test` or kill the process using the port
+### Features
+| Criterion | Status |
+|-----------|--------|
+| Cursor-based pagination (not offset) | ✅ MongoDB `_id` cursor, limit+1 strategy |
+| SSR on initial page load | ✅ `getServerSideProps` in `index.tsx` |
+| Products display correctly | ✅ ProductCard with grid layout |
+| Add product form functional | ✅ With validation and feedback |
+| Category filter working | ✅ Dropdown with all ProductCategory values |
+| Search functionality working | ✅ Debounced, regex-escaped |
 
-### CORS Error
-```
-Access to XMLHttpRequest blocked by CORS policy
-```
-**Solution:** Ensure CORS_ORIGIN in server `.env` matches client's `NEXT_PUBLIC_API_URL`
+### Environment
+| Criterion | Status |
+|-----------|--------|
+| `server/.env.test` exists | ✅ |
+| `server/.env.production` exists | ✅ |
+| `client/.env.test` exists | ✅ |
+| `client/.env.production` exists | ✅ |
+| `env.config.ts` validates & exports typed config | ✅ |
+| `.env` files in `.gitignore` | ✅ Both root & client |
+| `.env.example` provided | ✅ Server, client, and root |
 
-### Invalid Cursor Error
-```
-Error: Invalid cursor
-```
-**Solution:** Ensure cursor is a valid MongoDB ObjectId string
+### Documentation
+| Criterion | Status |
+|-----------|--------|
+| README with setup instructions | ✅ |
+| How to switch test/production env | ✅ |
+| API endpoints documented | ✅ |
 
 ---
 
-## 📞 Support & Contact
+## Author
 
-For questions or issues, please reach out:
-
-### 👨‍💻 Author
 **Tejeswar Achari**
 
-- **GitHub:** [@TejeswarAchari](https://github.com/TejeswarAchari)
-- **LinkedIn:** [Tejeswarachari Vadla](https://linkedin.com/in/tejeswarachari)
-- **Email:** [vteja797@gmail.com](mailto:vteja797@gmail.com)
+- GitHub: [@TejeswarAchari](https://github.com/TejeswarAchari)
+- LinkedIn: [Tejeswarachari Vadla](https://linkedin.com/in/tejeswarachari)
+- Email: [vteja797@gmail.com](mailto:vteja797@gmail.com)
 
 ---
 
-## 📄 License
-
-This project is provided as-is for educational and internship evaluation purposes.
-
----
-
-## 🙏 Acknowledgments
-
-Built with ❤️ by **Tejeswar Achari** as part of the MERN Stack Internship Assignment.
-
-Special thanks to:
-- The open-source community for excellent libraries like Express, Mongoose, Next.js, and React
-- Best practices from industry standards and architectural patterns
-
----
-
-**Last Updated:** February 6, 2026  
 **Repository:** [product-management](https://github.com/TejeswarAchari/product-management)

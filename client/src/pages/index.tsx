@@ -58,12 +58,21 @@ const Home: NextPage<HomeProps> = ({ initialData, initialCategory, initialSearch
   }, [trimmedSearch]);
 
   useEffect(() => {
+    if (!router.isReady) return;
+
+    const nextCategory = categoryFilter || '';
+    const nextSearch = searchQuery || '';
+    const currentCategory = typeof router.query.category === 'string' ? router.query.category : '';
+    const currentSearch = typeof router.query.q === 'string' ? router.query.q : '';
+
+    if (nextCategory === currentCategory && nextSearch === currentSearch) return;
+
     const query: Record<string, string> = {};
-    if (categoryFilter) query.category = categoryFilter;
-    if (searchQuery) query.q = searchQuery;
+    if (nextCategory) query.category = nextCategory;
+    if (nextSearch) query.q = nextSearch;
 
     void router.replace({ pathname: '/', query }, undefined, { shallow: true });
-  }, [categoryFilter, searchQuery, router]);
+  }, [categoryFilter, searchQuery, router.isReady, router.query.category, router.query.q]);
 
   // Handle Filter Change
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

@@ -24,9 +24,23 @@ const startServer = async () => {
     await mongoose.connect(config.MONGODB_URI);
     console.log(`Connected to MongoDB (${config.NODE_ENV})`);
 
-    app.listen(config.PORT, () => {
+    const server = app.listen(config.PORT, () => {
       console.log(`Server running on port ${config.PORT}`);
     });
+
+    // Graceful shutdown for production (Docker, PaaS, etc.)
+    const shutdown = async (signal: string) => {
+      console.log(`\n${signal} received. Shutting down gracefully...`);
+      server.close(() => {
+        console.log('HTTP server closed.');
+      });
+      await mongoose.connection.close();
+      console.log('MongoDB connection closed.');
+      process.exit(0);
+    };
+
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
   } catch (error) {
     console.error('Failed to connect to database:', error);
     process.exit(1);
