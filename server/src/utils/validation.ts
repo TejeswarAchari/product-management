@@ -26,7 +26,10 @@ export const parseCategory = (category?: string): ProductCategory | undefined =>
   return category as ProductCategory;
 };
 
-export const sanitizeSearchQuery = (queryText: string): string => {
+export const sanitizeSearchQuery = (queryText: string | undefined): string => {
+  if (!queryText || typeof queryText !== 'string') {
+    throw new AppError(HttpStatus.BAD_REQUEST, 'Query parameter q is required');
+  }
   const trimmed = normalizeText(queryText, 100);
   if (!trimmed) {
     throw new AppError(HttpStatus.BAD_REQUEST, 'Query parameter q is required');

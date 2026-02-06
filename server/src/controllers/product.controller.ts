@@ -37,7 +37,7 @@ export class ProductController {
 
   static async searchProducts(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const query = sanitizeSearchQuery(req.query.q as string);
+      const query = sanitizeSearchQuery(req.query.q as string | undefined);
       const cursor = req.query.cursor as string | undefined;
       const limit = parseLimit(req.query.limit as string | undefined);
       const category = parseCategory(req.query.category as string | undefined);
