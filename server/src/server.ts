@@ -8,7 +8,11 @@ import { errorHandler } from './middleware/error.middleware';
 const app = express();
 
 app.use(cors({ 
-  origin: config.CORS_ORIGIN,
+  origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://product-management-omega-ruby.vercel.app"
+    ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
